@@ -25,9 +25,9 @@ class CurrencyDTO
     }
 
     /**
-     * @return float
+     * @return int|mixed
      */
-    public function getRate(): float
+    public function getRate()
     {
         return $this->currency->getRatesList()['rates'][$this->currency->getName()] ?? 0;
     }

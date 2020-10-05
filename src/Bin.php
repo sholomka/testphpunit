@@ -16,21 +16,26 @@ class Bin
     private string $name;
 
     /**
-     * Bin constructor.
-     * @param string $name
-     */
-    public function __construct(string $name)
-    {
-        $this->name = $name;
-    }
-
-    /**
      * @return false|string
      */
     public function getList()
     {
-        $binList = file_get_contents(getenv('BIN_LIST_URI') . $this->name);
+        $binList = $this->fetchUrl();
 
         return new BinListDTO(json_decode($binList, true));
+    }
+
+
+    public function fetchUrl()
+    {
+        return file_get_contents(getenv('BIN_LIST_URI') . $this->name);
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 }
