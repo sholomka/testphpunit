@@ -7,11 +7,6 @@
             "App\\": "src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "App\\Tests\\": "tests/"
-        }
-    },
     "require": {
         "symfony/dotenv": "^5.1"
     }

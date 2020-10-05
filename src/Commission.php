@@ -3,6 +3,7 @@
 namespace App;
 
 use App\DTO\TransactionDTO;
+use Exception;
 
 /**
  * Class Commission
@@ -30,11 +31,6 @@ class Commission
     private string $amount;
 
     /**
-     * @var array
-     */
-    private array $fileContent;
-
-    /**
      * @var Card
      */
     private Card $card;
@@ -46,38 +42,58 @@ class Commission
 
     /**
      * Commission constructor.
-     * @param array $argv
      */
-    public function __construct(array $argv)
+    public function __construct()
     {
-        $this->fileContent = $this->getFileContent($argv);
         $this->card = new Card();
     }
 
     /**
+     * @param array $argv
      * @return void
      */
-    public function calculate(): void
+    public function calculate(array $argv): void
     {
-        foreach ($this->fileContent as $json) {
-            if (empty($json)) {
-                break;
+        $fileContent = $this->getFileContent($argv);
+
+        foreach ($fileContent as $json) {
+            try {
+                echo $this->getResult($json) . PHP_EOL;
+            } catch (Exception $e) {
             }
-
-            $transaction = new TransactionDTO(json_decode($json, true));
-            $this->amount = $transaction->getAmount();
-            $this->currency = $transaction->getCurrency();
-            $binResults = (new Bin($transaction->getBin()))->getList();
-
-            if (!$binResults) {
-                break;
-            }
-
-            $this->countryIso = $binResults->getCountryIso();
-            $this->rate = (new Currency($this->currency))->getRate();
-
-            echo $this->getAmntFixed() * $this->getRatio() . PHP_EOL;
         }
+    }
+
+    public function test2()
+    {
+        return 1;
+    }
+
+
+    /**
+     * @param string $json
+     * @return float
+     * @throws Exception
+     */
+    public function getResult(string $json)
+    {
+        if (empty($json)) {
+            throw new Exception('json empty');
+        }
+
+        $transaction = new TransactionDTO(json_decode($json, true));
+        $this->amount = $transaction->getAmount();
+        $this->currency = $transaction->getCurrency();
+        $binResults = (new Bin($transaction->getBin()))->getList();
+
+        if (!$binResults) {
+            throw new Exception('bin results is empty');
+        }
+
+        $this->countryIso = $binResults->getCountryIso();
+        $this->rate = (new Currency($this->currency))->getRate();
+
+        return $this->getAmntFixed() * $this->getRatio();
     }
 
     /**
