@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Clients\HttpClient;
 use App\DTO\BinListDTO;
 
 /**
@@ -16,19 +17,26 @@ class Bin
     private string $name;
 
     /**
-     * @return false|string
+     * @var HttpClient
      */
-    public function getList()
-    {
-        $binList = $this->fetchUrl();
+    private HttpClient $httpClient;
 
-        return new BinListDTO(json_decode($binList, true));
+    /**
+     * Bin constructor.
+     */
+    public function __construct()
+    {
+        $this->httpClient = new HttpClient();
     }
 
-
-    public function fetchUrl()
+    /**
+     * @return BinListDTO
+     */
+    public function getList(): BinListDTO
     {
-        return file_get_contents(getenv('BIN_LIST_URI') . $this->name);
+        $binList = $this->httpClient->fetchBinListUrl($this->name);
+
+        return new BinListDTO(json_decode($binList, true));
     }
 
     /**

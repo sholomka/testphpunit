@@ -8,7 +8,7 @@ use App\Currency;
  * Class CurrencyDTO
  * @package App\DTO
  */
-class CurrencyDTO
+final class CurrencyDTO
 {
     /**
      * @var Currency

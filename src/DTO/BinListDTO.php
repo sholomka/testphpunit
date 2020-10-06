@@ -1,14 +1,16 @@
 <?php
 
-
 namespace App\DTO;
 
 /**
  * Class BinListDTO
  * @package App\DTO
  */
-class BinListDTO
+final class BinListDTO
 {
+    /**
+     * @var array
+     */
     private array $binList;
 
     /**

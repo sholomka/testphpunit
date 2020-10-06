@@ -39,10 +39,12 @@ class Commission
      * @var string
      */
     private string $countryIso;
+
     /**
      * @var TransactionDTO
      */
     private TransactionDTO $transaction;
+
     /**
      * @var null|Bin
      */
@@ -73,29 +75,15 @@ class Commission
             try {
                 echo $this->getResult($json) . PHP_EOL;
             } catch (Exception $e) {
+                // TODO log to elastic
             }
         }
     }
 
-    public function setBin(Bin $bin): void
-    {
-        $this->bin = $bin;
-    }
-
-    public function setCurrency(Currency $currency): void
-    {
-        $this->currency = $currency;
-    }
-
-    public function setTransaction(string $json)
-    {
-        $this->transaction =  new TransactionDTO(json_decode($json, true));
-    }
-
-
     /**
      * @param string $json
      *
+     * @return float|int
      * @throws Exception
      */
     public function getResult(string $json)
@@ -104,7 +92,6 @@ class Commission
             throw new Exception('json empty');
         }
 
-//        $transaction = new TransactionDTO(json_decode($json, true));
         $this->setTransaction($json);
         $this->amount = $this->transaction->getAmount();
         $this->transactionCurrency = $this->transaction->getCurrency();
@@ -114,7 +101,6 @@ class Commission
         }
 
         $this->bin->setName($this->transaction->getBin());
-
         $binResults = $this->bin->getList();
 
         if (!$binResults) {
@@ -128,18 +114,33 @@ class Commission
         }
 
         $this->currency->setName($this->transactionCurrency);
-
         $this->rate = $this->currency->getRate();
 
         return $this->getAmntFixed() * $this->getRatio();
     }
 
     /**
-     *
+     * @param Bin $bin
      */
-    private function getRatio()
+    public function setBin(Bin $bin): void
     {
-        return $this->card->isEurope($this->countryIso) ? self::AMNT_EUROPE_RATIO : self::AMNT_STANDARD_RATIO;
+        $this->bin = $bin;
+    }
+
+    /**
+     * @param Currency $currency
+     */
+    public function setCurrency(Currency $currency): void
+    {
+        $this->currency = $currency;
+    }
+
+    /**
+     * @param string $json
+     */
+    public function setTransaction(string $json)
+    {
+        $this->transaction = new TransactionDTO(json_decode($json, true));
     }
 
     /**
@@ -149,6 +150,22 @@ class Commission
     public function getFileContent($argv): array
     {
         return explode(PHP_EOL, file_get_contents(end($argv)));
+    }
+
+    /**
+     * @return TransactionDTO
+     */
+    public function getTransaction(): TransactionDTO
+    {
+        return $this->transaction;
+    }
+
+    /**
+     * @return float
+     */
+    private function getRatio(): float
+    {
+        return $this->card->isEurope($this->countryIso) ? self::AMNT_EUROPE_RATIO : self::AMNT_STANDARD_RATIO;
     }
 
     /**
@@ -183,13 +200,5 @@ class Commission
         }
 
         return $amntFixed;
-    }
-
-    /**
-     * @return TransactionDTO
-     */
-    public function getTransaction(): TransactionDTO
-    {
-        return $this->transaction;
     }
 }

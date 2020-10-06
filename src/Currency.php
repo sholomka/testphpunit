@@ -1,8 +1,8 @@
 <?php
 
-
 namespace App;
 
+use App\Clients\HttpClient;
 use App\DTO\CurrencyDTO;
 
 /**
@@ -24,12 +24,16 @@ class Currency
     private $ratesList;
 
     /**
+     * @var HttpClient
+     */
+    private HttpClient $httpClient;
+
+    /**
      * Currency constructor.
-     * @param string $name
      */
     public function __construct()
     {
-
+        $this->httpClient = new HttpClient();
     }
 
     /**
@@ -37,10 +41,7 @@ class Currency
      */
     public function getRate()
     {
-        $rates = file_get_contents(getenv('CURRENCY_RATE_URI'));
-        $this->ratesList = @json_decode($rates, true);
-
-        var_dump( $rates);
+        $this->ratesList = @json_decode($this->httpClient->fetchCurrencyUrl(), true);
 
         return (new CurrencyDTO($this))->getRate();
     }
